@@ -24,4 +24,19 @@ int main() {
         cout<< highestPrime[i] << " " << lowestPrime[i] << endl;
     }
 
+    /*--------------To find Prime factorozation-------------------->*/
+    int num;
+    cin >> num;
+    vector<int> prime_factors;
+    while(num > 1){
+        int prime_factor = highestPrime[num] ;
+        while(num % prime_factor == 0){
+            num = num / prime_factor;
+            prime_factors.push_back(prime_factor);
+        }
+    }
+    for(auto x : prime_factors){
+        cout<< x << " ";
+    }
+
 }
