@@ -60,5 +60,5 @@ int main(){
     // cout<<ind1<<" "<<ind2<<" "<<ind3<< endl;
 
 
-
+    cout<< 2/10<<endl;
 }
