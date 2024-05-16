@@ -1,0 +1,235 @@
+val videoDataTask = supabase
+            .from("videoData")
+            .select("*")
+            .execute()
+
+        videoDataTask.await { result ->
+            if (result.isSuccess) {
+                val dataList = result.data as List<Map<String, Any?>>
+                // Process the fetched data (dataList)
+            } else {
+                // Handle error
+                val error = result.error
+            }
+        }
+
+
+
+===============================================================
+
+
+//    private suspend fun fetchData(){
+//        val data = supabase.from("videoData").select().decodeSingle<VideoItem>()
+//        Log.d("data", data.toString())
+//    }
+
+
+======================================================
+
+
+val myAdapter = VideoAdapter(this@MainActivity, videoList)
+                myAdapter.setOnItemClickListener(object  :VideoAdapter.onItemClickListener {
+                    override fun onItemClicking(position: Int) {
+                        // on clicking each item---> action to be performed
+                        val i = Intent(this@MainActivity,MediaActivity::class.java)
+                        i.putExtra("videoTitle",videoList[position].videoTitle)
+                        i.putExtra("thumbnailUrl",videoList[position].thumbnailUrl)
+                        i.putExtra("videoUrl",videoList[position].videoUrl)
+                        startActivity(i)
+                    }
+
+                })
+
+
+========================================================
+
+val supabase = createSupabaseClient(
+    supabaseUrl = "https://syzaktxwpunuiimbyyaa.supabase.co",
+    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5emFrdHh3cHVudWlpbWJ5eWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUzNDA5NDMsImV4cCI6MjAzMDkxNjk0M30.HdN6hORI0vHdDPdfPSO7rUpQIz9-aBO63uOtXQrwtxo"
+){
+    install(Postgrest)
+}
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var recyclerView: RecyclerView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setupLayout()
+        fetchVideoData()
+    }
+
+    private fun setupLayout() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+        recyclerView = binding.rvVideoItem
+        recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun fetchVideoData() {
+        lifecycleScope.launch {
+            try {
+
+                val videoList = supabase.from("videoData").select().decodeList<VideoItem>()
+                withContext(Dispatchers.Main) {
+                    recyclerView.adapter = VideoAdapter(this@MainActivity, videoList).apply {
+                        setOnItemClickListener { position ->
+                            handleItemClick(videoList[position])
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun handleItemClick(videoItem: VideoItem) {
+        val intent = Intent(this, MediaActivity::class.java).apply {
+            putExtra("videoTitle", videoItem.videoTitle)
+            putExtra("thumbnailUrl", videoItem.thumbnailUrl)
+            putExtra("videoUrl", videoItem.videoUrl)
+        }
+        startActivity(intent)
+    }
+}
+
+
+============================================================
+
+
+package com.rishav.basicapp.media
+
+
+class MediaActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMediaBinding
+
+    lateinit var player :ExoPlayer
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        binding = ActivityMediaBinding.inflate(layoutInflater)
+        setContentView(R.layout.activity_media)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+
+        val heading = intent.getStringExtra("videoTitle")
+        val imageUrl = intent.getStringExtra("thumbnailUrl")
+        val videoUrl = intent.getStringExtra("videoUrl")
+
+        player = ExoPlayer.Builder(this).build()
+        binding.playerView.player = player
+
+        val mediaItem = MediaItem.fromUri(videoUrl!!)
+        player.setMediaItem(mediaItem)
+        player.prepare()
+        player.play()
+
+
+        player.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                Toast.makeText(this@MediaActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                super.onPlayerError(error)
+            }
+        })
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        player.playWhenReady = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        player.playWhenReady = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player.release()
+    }
+}
+
+
+
+
+
+===========================================
+
+        lifecycleScope.launch {
+            // do your Coroutine Stuff here, i.e. call a suspend fun:
+            videoList = supabase.from("videoData").select().decodeList<VideoItem>()
+            withContext(Dispatchers.Main) {
+                recyclerView = binding.rvVideoItem
+                recyclerView.adapter = VideoAdapter(this@MainActivity, videoList)
+                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+            }
+        }
+
+===============================================
+        //    override fun onResume() {
+        //        super.onResume()
+        //        lifecycleScope.launch {
+        //            getData()
+        //        }
+        //    }
+
+
+recyclerView = binding.rvVideoItem
+        recyclerView.adapter = VideoAdapter(this@MainActivity, videoList)
+        recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+
+
+
+=================================================================================
+
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var videoList: List<VideoItem>
+    private lateinit var recyclerView: RecyclerView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            videoList = withContext(Dispatchers.Default) {
+                supabase.from("videoData").select().decodeList<VideoItem>()
+            }
+
+            recyclerView = binding.rvVideoItem
+            val adapter = VideoAdapter(this@MainActivity, videoList)
+            recyclerView.adapter = adapter
+            recyclerView.layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+
+            adapter.onItemClickListener = object : VideoAdapter.onItemClickListener {
+                override fun onItemClicking(position: Int) {
+                    val i = Intent(this@MainActivity, MediaActivity::class.java)
+                    i.putExtra("videoUrl", videoList[position].videoUrl)
+                    startActivity(i)
+                }
+            }
+        }
+    }
+}
