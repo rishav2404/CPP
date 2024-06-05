@@ -1,235 +1,86 @@
-val videoDataTask = supabase
-            .from("videoData")
-            .select("*")
-            .execute()
+import express from "express";
+import * as Sentry from "@sentry/node";
+import dotenv from "dotenv";
+import service from "./service";
 
-        videoDataTask.await { result ->
-            if (result.isSuccess) {
-                val dataList = result.data as List<Map<String, Any?>>
-                // Process the fetched data (dataList)
-            } else {
-                // Handle error
-                val error = result.error
-            }
-        }
+dotenv.config();
 
+const startServer = async () => {
+  const app = express();
+  Sentry.init({
+    dsn: "https://a094d203b6264385b5e5e1128da010a3@o575639.ingest.sentry.io/6116675",
+    integrations: [new Sentry.Integrations.Http({ tracing: true })],
+    tracesSampleRate: 1.0,
+    environment: "main",
+    release: "eam-pu-api@1.0.0",
+  });
 
+  // The request handler must be the first middleware on the app
+  app.use(Sentry.Handlers.requestHandler());
 
-===============================================================
+  // The error handler must be before any other error middleware and after all controllers
+  app.use(Sentry.Handlers.errorHandler());
 
+  // Optional fallthrough error handler
+  app.use(function onError(err, req, res, next) {
+    // The error id is attached to `res.sentry` to be returned
+    // and optionally displayed to the user for support.
+    res.statusCode = 500;
+    res.end(`${res.sentry}"\n"`);
+  });
 
-//    private suspend fun fetchData(){
-//        val data = supabase.from("videoData").select().decodeSingle<VideoItem>()
-//        Log.d("data", data.toString())
-//    }
+  await service({ app });
 
-
-======================================================
-
-
-val myAdapter = VideoAdapter(this@MainActivity, videoList)
-                myAdapter.setOnItemClickListener(object  :VideoAdapter.onItemClickListener {
-                    override fun onItemClicking(position: Int) {
-                        // on clicking each item---> action to be performed
-                        val i = Intent(this@MainActivity,MediaActivity::class.java)
-                        i.putExtra("videoTitle",videoList[position].videoTitle)
-                        i.putExtra("thumbnailUrl",videoList[position].thumbnailUrl)
-                        i.putExtra("videoUrl",videoList[position].videoUrl)
-                        startActivity(i)
-                    }
-
-                })
-
-
-========================================================
-
-val supabase = createSupabaseClient(
-    supabaseUrl = "https://syzaktxwpunuiimbyyaa.supabase.co",
-    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5emFrdHh3cHVudWlpbWJ5eWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUzNDA5NDMsImV4cCI6MjAzMDkxNjk0M30.HdN6hORI0vHdDPdfPSO7rUpQIz9-aBO63uOtXQrwtxo"
-){
-    install(Postgrest)
-}
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var recyclerView: RecyclerView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setupLayout()
-        fetchVideoData()
+  // Internal Error Response (This should be defined after all routes are defined)
+  app.use((err, _req, res, next) => {
+    if (!err) {
+      return next();
     }
 
-    private fun setupLayout() {
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        recyclerView = binding.rvVideoItem
-        recyclerView.layoutManager = LinearLayoutManager(this)
+    if (err.includes("authorization")) {
+      return res.status(401).json({ status: 401, message: err });
     }
 
-    private fun fetchVideoData() {
-        lifecycleScope.launch {
-            try {
+    switch (err.name) {
+      case "BadRequestError":
+        return res.status(400).json({ status: 400, message: err.message });
+      case "UnauthorizedError":
+        return res.status(401).json({ status: 401, message: err.message });
+      case "ForbiddenError":
+        return res.status(403).json({ status: 403, message: err.message });
+      case "NotFoundError":
+        return res.status(404).json({ status: 404, message: err.message });
+      case "ConflictError":
+        return res.status(409).json({ status: 409, message: err.message });
+      default:
+        return res
+          .status(500)
+          .json({ status: 500, message: "Internal server error", err });
+    }
+  });
 
-                val videoList = supabase.from("videoData").select().decodeList<VideoItem>()
-                withContext(Dispatchers.Main) {
-                    recyclerView.adapter = VideoAdapter(this@MainActivity, videoList).apply {
-                        setOnItemClickListener { position ->
-                            handleItemClick(videoList[position])
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                // Handle error
-                e.printStackTrace()
-            }
-        }
+  // 404 Not Found Response (This should be defined after defining internal server handler)
+  app.use((_req, res) => {
+    res.status(404).json({
+      status: 404,
+      message: "Requested resource not found!",
+    });
+  });
+
+  const port = process.env.PORT || 7000;
+
+  app.http.listen(port, (err) => {
+    if (err) {
+      console.error(err);
+      return;
     }
 
-    private fun handleItemClick(videoItem: VideoItem) {
-        val intent = Intent(this, MediaActivity::class.java).apply {
-            putExtra("videoTitle", videoItem.videoTitle)
-            putExtra("thumbnailUrl", videoItem.thumbnailUrl)
-            putExtra("videoUrl", videoItem.videoUrl)
-        }
-        startActivity(intent)
-    }
-}
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    console.log(` server listening on port ${port}! ??`);
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  });
 
+  app.startTime = new Date(Date.now());
+};
 
-============================================================
-
-
-package com.rishav.basicapp.media
-
-
-class MediaActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMediaBinding
-
-    lateinit var player :ExoPlayer
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityMediaBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_media)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-
-        val heading = intent.getStringExtra("videoTitle")
-        val imageUrl = intent.getStringExtra("thumbnailUrl")
-        val videoUrl = intent.getStringExtra("videoUrl")
-
-        player = ExoPlayer.Builder(this).build()
-        binding.playerView.player = player
-
-        val mediaItem = MediaItem.fromUri(videoUrl!!)
-        player.setMediaItem(mediaItem)
-        player.prepare()
-        player.play()
-
-
-        player.addListener(object : Player.Listener {
-            override fun onPlayerError(error: PlaybackException) {
-                Toast.makeText(this@MediaActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                super.onPlayerError(error)
-            }
-        })
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-        player.playWhenReady = true
-    }
-
-    override fun onStop() {
-        super.onStop()
-        player.playWhenReady = false
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        player.release()
-    }
-}
-
-
-
-
-
-===========================================
-
-        lifecycleScope.launch {
-            // do your Coroutine Stuff here, i.e. call a suspend fun:
-            videoList = supabase.from("videoData").select().decodeList<VideoItem>()
-            withContext(Dispatchers.Main) {
-                recyclerView = binding.rvVideoItem
-                recyclerView.adapter = VideoAdapter(this@MainActivity, videoList)
-                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-            }
-        }
-
-===============================================
-        //    override fun onResume() {
-        //        super.onResume()
-        //        lifecycleScope.launch {
-        //            getData()
-        //        }
-        //    }
-
-
-recyclerView = binding.rvVideoItem
-        recyclerView.adapter = VideoAdapter(this@MainActivity, videoList)
-        recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-
-
-
-=================================================================================
-
-
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var videoList: List<VideoItem>
-    private lateinit var recyclerView: RecyclerView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            videoList = withContext(Dispatchers.Default) {
-                supabase.from("videoData").select().decodeList<VideoItem>()
-            }
-
-            recyclerView = binding.rvVideoItem
-            val adapter = VideoAdapter(this@MainActivity, videoList)
-            recyclerView.adapter = adapter
-            recyclerView.layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
-
-            adapter.onItemClickListener = object : VideoAdapter.onItemClickListener {
-                override fun onItemClicking(position: Int) {
-                    val i = Intent(this@MainActivity, MediaActivity::class.java)
-                    i.putExtra("videoUrl", videoList[position].videoUrl)
-                    startActivity(i)
-                }
-            }
-        }
-    }
-}
+startServer();
