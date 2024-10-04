@@ -9,7 +9,12 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "iostream": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "format": "cpp",
+        "xstring": "cpp",
+        "forward_list": "cpp",
+        "initializer_list": "cpp",
+        "string": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -72,7 +72,7 @@ Node* add2Numbers(Node* head1 , Node* head2){
 } 
 
 int main(){
-    vector<int> arr1 = {4, 5, 9, 9};
+    vector<int> arr1 = {4, 5, 9, 12};
     vector<int> arr2 = {3,5};
 
     Node *head1 = convertArray2LL(arr1);

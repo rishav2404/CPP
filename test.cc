@@ -17,3 +17,22 @@ int main() {
     cout << solve(N) << endl;  // Output: 6
     return 0;
 }
+
+/**/
+
+int x;
+cin>>x;
+
+if(){
+    cout<< <<endl;
+}else{
+    cout<< <<endl;
+}
+
+/**/
+
+int t;
+cin>>t;
+while(t--){
+    
+}

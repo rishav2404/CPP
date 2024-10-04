@@ -1,0 +1,86 @@
+import express from "express";
+import * as Sentry from "@sentry/node";
+import dotenv from "dotenv";
+import service from "./service";
+
+dotenv.config();
+
+const startServer = async () => {
+  const app = express();
+  Sentry.init({
+    dsn: "https://a094d203b6264385b5e5e1128da010a3@o575639.ingest.sentry.io/6116675",
+    integrations: [new Sentry.Integrations.Http({ tracing: true })],
+    tracesSampleRate: 1.0,
+    environment: "main",
+    release: "eam-pu-api@1.0.0",
+  });
+
+  // The request handler must be the first middleware on the app
+  app.use(Sentry.Handlers.requestHandler());
+
+  // The error handler must be before any other error middleware and after all controllers
+  app.use(Sentry.Handlers.errorHandler());
+
+  // Optional fallthrough error handler
+  app.use(function onError(err, req, res, next) {
+    // The error id is attached to `res.sentry` to be returned
+    // and optionally displayed to the user for support.
+    res.statusCode = 500;
+    res.end(`${res.sentry}"\n"`);
+  });
+
+  await service({ app });
+
+  // Internal Error Response (This should be defined after all routes are defined)
+  app.use((err, _req, res, next) => {
+    if (!err) {
+      return next();
+    }
+
+    if (err.includes("authorization")) {
+      return res.status(401).json({ status: 401, message: err });
+    }
+
+    switch (err.name) {
+      case "BadRequestError":
+        return res.status(400).json({ status: 400, message: err.message });
+      case "UnauthorizedError":
+        return res.status(401).json({ status: 401, message: err.message });
+      case "ForbiddenError":
+        return res.status(403).json({ status: 403, message: err.message });
+      case "NotFoundError":
+        return res.status(404).json({ status: 404, message: err.message });
+      case "ConflictError":
+        return res.status(409).json({ status: 409, message: err.message });
+      default:
+        return res
+          .status(500)
+          .json({ status: 500, message: "Internal server error", err });
+    }
+  });
+
+  // 404 Not Found Response (This should be defined after defining internal server handler)
+  app.use((_req, res) => {
+    res.status(404).json({
+      status: 404,
+      message: "Requested resource not found!",
+    });
+  });
+
+  const port = process.env.PORT || 7000;
+
+  app.http.listen(port, (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    console.log(` server listening on port ${port}! ??`);
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  });
+
+  app.startTime = new Date(Date.now());
+};
+
+startServer();
