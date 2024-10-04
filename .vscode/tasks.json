@@ -1,58 +1,126 @@
+// // {
+// //     "version": "2.0.0",
+// //     "tasks": [
+// //         {
+// //             "label": "Compile and run",
+// //             "type": "shell",
+// //             "command": "",
+// //             "args": [
+// //                 "copy",
+// //                 "\"${file}\"",
+// //                 "${workspaceFolder}\\jspwTest.cpp",
+// //                 "&&",
+// //                 "g++",
+// //                 "jspwTest.cpp",
+// //                 "-o",
+// //                 "jspwTest",
+// //                 "&&",
+// //                 "jspwTest",
+// //                 "<",
+// //                 "input.txt",
+// //                 ">",
+// //                 "output.txt",
+// //                 "&&",
+// //                 "del",
+// //                 "jspwTest.exe",
+// //                 "&&",
+// //                 "del",
+// //                 "jspwTest.cpp"
+// //             ],
+// //             "presentation": {
+// //                 "reveal": "never"
+// //             },
+// //             "group": {
+// //                 "kind": "build",
+// //                 "isDefault": true,
+// //             },
+// //             "problemMatcher": {
+// //                 "owner": "cpp",
+// //                 "fileLocation": [
+// //                     "relative",
+// //                     "${workspaceRoot}"
+// //                 ],
+// //                 "pattern": {
+// //                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+// //                     "file": 1,
+// //                     "line": 2,
+// //                     "column": 3,
+// //                     "severity": 4,
+// //                     "message": 5
+// //                 }
+// //             }
+// //         }
+// //     ]
+// // }
+
+
+// // {
+// //     "version": "2.0.0",
+// //     "tasks": [
+// //         {
+// //             "label": "Compile and run",
+// //             "type": "shell",
+// //             "command": "cmd.exe",
+// //             "args": [
+// //                 "/c",
+// //                 "copy",
+// //                 "\"${file}\"",
+// //                 "\"${workspaceFolder}\\jspwTest.cpp\"",
+// //                 "&&",
+// //                 "g++",
+// //                 "-o",
+// //                 "\"${workspaceFolder}\\jspwTest\"",
+// //                 "\"${workspaceFolder}\\jspwTest.cpp\"",
+// //                 "&&",
+// //                 "\"${workspaceFolder}\\jspwTest\"",
+// //                 "<",
+// //                 "\"${workspaceFolder}\\input.txt\"",
+// //                 ">",
+// //                 "\"${workspaceFolder}\\output.txt\"",
+// //                 "&&",
+// //                 "del",
+// //                 "\"${workspaceFolder}\\jspwTest.exe\"",
+// //                 "&&",
+// //                 "del",
+// //                 "\"${workspaceFolder}\\jspwTest.cpp\""
+// //             ],
+// //             "presentation": {
+// //                 "reveal": "always",
+// //                 "focus": true
+// //             },
+// //             "group": {
+// //                 "kind": "build",
+// //                 "isDefault": true
+// //             },
+// //             "problemMatcher": []
+// //         }
+// //     ]
+// // }
+
+
 // {
 //     "version": "2.0.0",
 //     "tasks": [
 //         {
 //             "label": "Compile and run",
 //             "type": "shell",
-//             "command": "",
+//             "command": "${workspaceFolder}/compile_and_run.bat",
 //             "args": [
-//                 "copy",
-//                 "\"${file}\"",
-//                 "${workspaceFolder}\\jspwTest.cpp",
-//                 "&&",
-//                 "g++",
-//                 "jspwTest.cpp",
-//                 "-o",
-//                 "jspwTest",
-//                 "&&",
-//                 "jspwTest",
-//                 "<",
-//                 "input.txt",
-//                 ">",
-//                 "output.txt",
-//                 "&&",
-//                 "del",
-//                 "jspwTest.exe",
-//                 "&&",
-//                 "del",
-//                 "jspwTest.cpp"
+//                 "${file}",
+//                 "${workspaceFolder}"
 //             ],
 //             "presentation": {
-//                 "reveal": "never"
+//                 "reveal": "always",
+//                 "focus": true
 //             },
 //             "group": {
 //                 "kind": "build",
-//                 "isDefault": true,
+//                 "isDefault": true
 //             },
-//             "problemMatcher": {
-//                 "owner": "cpp",
-//                 "fileLocation": [
-//                     "relative",
-//                     "${workspaceRoot}"
-//                 ],
-//                 "pattern": {
-//                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-//                     "file": 1,
-//                     "line": 2,
-//                     "column": 3,
-//                     "severity": 4,
-//                     "message": 5
-//                 }
-//             }
+//             "problemMatcher": []
 //         }
 //     ]
 // }
-
 
 {
     "version": "2.0.0",
@@ -60,29 +128,10 @@
         {
             "label": "Compile and run",
             "type": "shell",
-            "command": "cmd.exe",
+            "command": "D:\\practiceC\\.vscode\\compile_and_run.bat",
             "args": [
-                "/c",
-                "copy",
-                "\"${file}\"",
-                "\"${workspaceFolder}\\jspwTest.cpp\"",
-                "&&",
-                "g++",
-                "-o",
-                "\"${workspaceFolder}\\jspwTest\"",
-                "\"${workspaceFolder}\\jspwTest.cpp\"",
-                "&&",
-                "\"${workspaceFolder}\\jspwTest\"",
-                "<",
-                "\"${workspaceFolder}\\input.txt\"",
-                ">",
-                "\"${workspaceFolder}\\output.txt\"",
-                "&&",
-                "del",
-                "\"${workspaceFolder}\\jspwTest.exe\"",
-                "&&",
-                "del",
-                "\"${workspaceFolder}\\jspwTest.cpp\""
+                "${file}",
+                "${workspaceFolder}"
             ],
             "presentation": {
                 "reveal": "always",
