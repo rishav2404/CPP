@@ -13,4 +13,4 @@
 # Ignore compiled files (for C/C++ projects)
 *.exe
 
-.vscode
+.gitignore
