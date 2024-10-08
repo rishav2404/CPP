@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class ABC{
+class ABC {
     static ABC* abc;
 
     // private constructor
@@ -16,7 +16,7 @@ class ABC{
     }
 };
 
-ABC* ABC::abc=NULL;
+ABC* ABC::abc = NULL;
 
 
 int main()
@@ -27,8 +27,8 @@ int main()
     ABC* obj = ABC::get_inst();
     cout << obj << endl;
 
-    // ABC* obj2 = ABC::get_inst();
-    // cout << obj2 << endl;
+    ABC* obj2 = ABC::get_inst();
+    cout << obj2 << endl;
 
     return 0;
 }

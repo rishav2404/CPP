@@ -5,6 +5,7 @@ struct ABC {
     int a;
     char b;
     float c;
+
     void (*funcPtr)(int);
     void (*functStringPointer)(char*);
     char* (*functStringPointer1)(char*);
@@ -34,7 +35,7 @@ int main() {
     obj.funcPtr(obj.a);
 
     obj.functStringPointer = printName;
-    obj.functStringPointer("Aarsh");
+    obj.functStringPointer("Ishan");
 
     obj.functStringPointer1 = printName1;
     char* p = (*printName1)("Kush Patel");

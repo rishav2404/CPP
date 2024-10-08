@@ -8,8 +8,7 @@ class ABC {
     // Private constructor to prevent external instantiation
     ABC() {}
 
-public:
-    // Static method to get an instance, creating up to 20 objects
+    public:
     static ABC* get_inst() {
         if (count < 20) {
             instances[count] = new ABC;
@@ -22,11 +21,10 @@ public:
 };
 
 // Initialize the static members
-ABC* ABC::instances[20] = {nullptr};  // Initialize array elements to nullptr
-int ABC::count = 0;                   // Start the count from 0
+ABC* ABC::instances[20] = {nullptr};// Initialize array elements to nullptr
+int ABC::count = 0;
 
 int main() {
-    // Create and print up to 20 instances
     for (int i = 0; i < 22; ++i) {  // Attempting to create 22 instances (2 will fail)
         ABC* obj = ABC::get_inst();
         cout << "Instance " << i + 1 << ": " << obj << endl;
