@@ -14,7 +14,8 @@
         "xstring": "cpp",
         "forward_list": "cpp",
         "initializer_list": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "stdio.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

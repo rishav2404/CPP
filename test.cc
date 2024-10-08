@@ -40,6 +40,6 @@ using namespace std;
 int main() {
     int N ;
     cin>>N;
-    cout << "Hello" << " " << N+1;
+    cout << "Hello" << " " << N+10;
     return 0;
 }
