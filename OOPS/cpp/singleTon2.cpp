@@ -7,6 +7,9 @@ class ABC {
     // private constructor
     ABC(){}
     
+    KushPatel(const KushPatel&) = delete;
+    KushPatel& operator=(const KushPatel&) = delete;
+    
     public:
     static ABC* get_inst() {
         if( abc == NULL ) {

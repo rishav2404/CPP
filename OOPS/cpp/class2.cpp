@@ -24,6 +24,10 @@ class Device_t{
         int get_pincount(){
             return pincount;
         }
+
+        Device_t() {
+
+        }
     };
 
 
@@ -40,7 +44,7 @@ int main()
     cout<<a_device.get_type()<<endl;
     
 
-    p_device=(Device_t*)calloc(1,sizeof(Device_t));
+    p_device = (Device_t*)calloc(1,sizeof(Device_t));
 
     p_device->set_type(5);
     cout<<endl;

@@ -5,9 +5,11 @@ struct ABC {
     int a;
     char b;
     float c;
+
     void (*funcPtr)(int); // Function pointer that takes an int and returns void
     void (*funcPtr2)(int, int);
     int (*productPtr)(int ,int) = productPtr;
+
 };
 
 // Define a function that matches the function pointer signature
@@ -32,6 +34,7 @@ int main() {
     obj.a = 10;
     obj.b = 'X';
     obj.c = 12.34;
+
     obj.funcPtr = printValue; // Assign the function to the function pointer
     obj.funcPtr(obj.a);  // Call the function through the function pointer
 
